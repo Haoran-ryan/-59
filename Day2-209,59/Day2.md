@@ -137,7 +137,7 @@ class Solution:
         return res
 ```
 
-# 区间和 
+# [([区间和](https://www.programmercarl.com/kamacoder/0058.%E5%8C%BA%E9%97%B4%E5%92%8C.html#%E6%80%9D%E8%B7%AF))] 
 
 题目描述
 
@@ -213,3 +213,103 @@ if __name__ == "__main__":
 - **输入处理**：使用`sys.stdin.read`一次性读取所有输入，避免逐行读取的性能问题。
 
 这种方法的时间复杂度为O(n + q)，其中n是数组长度，q是查询次数，能够高效处理大规模数据。
+
+# [[开发商购买土地](https://www.programmercarl.com/kamacoder/0044.%E5%BC%80%E5%8F%91%E5%95%86%E8%B4%AD%E4%B9%B0%E5%9C%9F%E5%9C%B0.html#%E6%80%9D%E8%B7%AF)]
+
+这个问题的核心在于如何高效地找到划分两个子区域的最小价值差。我们可以通过前缀和技巧来优化计算，避免重复求和。以下是详细的解题思路：
+
+---
+
+### **解题思路**
+1. **预处理行列总和**：
+   - 计算每一行的总和 `row_sum` 和每一列的总和 `col_sum`。
+   - 构建行前缀和数组 `prefix_row` 和列前缀和数组 `prefix_col`，用于快速计算任意前若干行或列的总和。
+
+2. **计算总价值**：
+   - 整个区域的总价值 `total` 可以通过前缀和数组的最后一个元素直接得到。
+
+3. **遍历所有可能的划分方式**：
+   - **横向划分**：枚举每一行后的分割线，计算上下两个区域的总价值差。
+   - **纵向划分**：枚举每一列后的分割线，计算左右两个区域的总价值差。
+   - 每次划分的差值公式为 `abs(total - 2 * sum_part)`，其中 `sum_part` 是某一部分的总和。
+
+4. **取最小值**：
+   - 在所有可能的横向和纵向划分中，找到最小的差值。
+
+---
+
+### **代码实现**
+```python
+import sys
+
+def main():
+    data = list(map(int, sys.stdin.read().split()))
+    ptr = 0
+    n = data[ptr]
+    ptr += 1
+    m = data[ptr]
+    ptr += 1
+    
+    grid = []
+    for _ in range(n):
+        row = data[ptr:ptr+m]
+        ptr += m
+        grid.append(row)
+    
+    # 计算每行和每列的总和
+    row_sum = [sum(row) for row in grid]
+    col_sum = [sum(grid[i][j] for j in range(m) for i in range(n)]  # 这样得到的是按列展开的顺序，需要调整
+    # 修正列总和的计算方式
+    col_sum = []
+    for j in range(m):
+        col_total = 0
+        for i in range(n):
+            col_total += grid[i][j]
+        col_sum.append(col_total)
+    
+    # 计算行和列的前缀和
+    prefix_row = [0] * (n + 1)
+    for i in range(1, n+1):
+        prefix_row[i] = prefix_row[i-1] + row_sum[i-1]
+    
+    prefix_col = [0] * (m + 1)
+    for j in range(1, m+1):
+        prefix_col[j] = prefix_col[j-1] + col_sum[j-1]
+    
+    total = prefix_row[n]
+    min_diff = float('inf')
+    
+    # 横向划分：分割线在第i行后（0 <= i < n-1）
+    for i in range(n-1):
+        sum_up = prefix_row[i+1]
+        diff = abs(total - 2 * sum_up)
+        if diff < min_diff:
+            min_diff = diff
+    
+    # 纵向划分：分割线在第j列后（0 <= j < m-1）
+    for j in range(m-1):
+        sum_left = prefix_col[j+1]
+        diff = abs(total - 2 * sum_left)
+        if diff < min_diff:
+            min_diff = diff
+    
+    print(min_diff)
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+### **关键点解释**
+1. **前缀和数组**：
+   - `prefix_row[i]` 表示前 `i` 行的总和，`prefix_col[j]` 表示前 `j` 列的总和。
+   - 通过前缀和，可以在常数时间内得到任意前若干行或列的总和。
+
+2. **差值计算**：
+   - 总价值为 `total`，若某部分总和为 `sum_part`，则差值为 `abs(total - 2 * sum_part)`。这是因为两部分的差值等于 `|sum_part - (total - sum_part)|`。
+
+3. **时间复杂度**：
+   - 预处理行列总和的时间复杂度为 O(nm)。
+   - 遍历横向和纵向划分的时间复杂度为 O(n + m)。
+   - 总时间复杂度为 O(nm)，适用于题目给定的数据范围（n, m ≤ 100）。
