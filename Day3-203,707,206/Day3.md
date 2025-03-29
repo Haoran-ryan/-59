@@ -38,7 +38,6 @@
    - When we find a node to remove, we set `current.next = current.next.next` to bypass it.
    - This is why we start checks from the dummy head - it lets us handle removing the first real node if needed.
 
-
 ```python
 # Definition for singly-linked list.
 # class ListNode:
@@ -169,3 +168,103 @@ class MyLinkedList:
 # obj.addAtIndex(index,val)
 # obj.deleteAtIndex(index)
 ```
+
+# Leetcode - 206 Reverse Linked List
+
+## Understanding the Problem
+**Q: What are we trying to do in the "Reverse Linked List" problem?**  
+A: We need to reverse the direction of a singly linked list so that each node points to the previous node instead of the next node.
+
+**Q: What should be the result of reversing 1→2→3→NULL?**  
+A: The result should be NULL←1←2←3, with 3 becoming the new head of the list.
+
+## Common Confusions
+
+**Q: Why do we need three pointers to reverse a linked list?**  
+A: We need to track:
+1. `prev` - Where we came from (to point our current node back to)
+2. `current` - The node we're currently working on
+3. `next_temp` - Where we're going next (so we don't lose our place after changing pointers)
+
+**Q: What happens if we set `current.next = current` as I tried in my code?**  
+A: This creates a self-referential loop where a node points to itself, rather than reversing the direction. For example, if we're at node 1 and we do `current.next = current`, node 1 will point back to itself instead of pointing to the previous node.
+
+**Q: What's the issue with my original approach?**
+```python
+dummyHead = LinkedList(next = currentHead) # pointer to the original head
+current = dummyHead # use this one to move along the linked list
+while current.next:
+  temp = current.next
+  current.next = current  # This creates a loop
+  current = temp
+```
+A: This code creates a self-referential loop. When `current` is dummyHead and we do `current.next = current`, we're making dummyHead point to itself instead of reversing the direction.
+
+**Q: If I create a dummyHead with `dummyHead = LinkedList(next = head)`, is dummyHead null?**  
+A: No, dummyHead is not null. It's an actual node object whose "next" field points to the original head of the list.
+
+**Q: Why do we return `prev` instead of `current` at the end of the algorithm?**  
+A: After the loop completes, `current` will be `None` because we've gone past the end of the list. The `prev` pointer will be pointing to the last node of the original list, which has become the new head of our reversed list.
+
+**Q: In the line `current.next = prev`, what exactly are we doing?**  
+A: We're changing where the current node points to. Instead of pointing to the next node in the original list, we're making it point to the previous node, effectively reversing the direction of the link.
+
+## My Final Correct Solution
+```python
+def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+    prev = None
+    current = head
+    
+    while current:
+        temp = current.next
+        current.next = prev
+        prev = current
+        current = temp
+    
+    return prev
+```
+
+## Optimized Solution (same as above)
+```python
+def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
+    prev = None
+    current = head
+    
+    while current:
+        next_temp = current.next  # Save next before changing
+        current.next = prev       # Reverse the pointer
+        prev = current            # Move prev forward
+        current = next_temp       # Move current forward
+    
+    return prev  # Return the new head
+```
+
+## Visualization of Algorithm Execution
+For input: 1→2→3→NULL
+
+**Initialization:**
+- `prev = None`
+- `current = 1`
+
+**Iteration 1:**
+- Save `next_temp = 2`
+- Change `1.next = None`
+- Move `prev = 1`
+- Move `current = 2`
+- List becomes: `None←1 2→3→NULL`
+
+**Iteration 2:**
+- Save `next_temp = 3`
+- Change `2.next = 1`
+- Move `prev = 2`
+- Move `current = 3`
+- List becomes: `None←1←2 3→NULL`
+
+**Iteration 3:**
+- Save `next_temp = NULL`
+- Change `3.next = 2`
+- Move `prev = 3`
+- Move `current = NULL`
+- List becomes: `None←1←2←3`
+
+**Loop terminates, return `prev` (3)**
