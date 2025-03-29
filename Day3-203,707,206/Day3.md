@@ -208,6 +208,7 @@ A: After the loop completes, `current` will be `None` because we've gone past th
 
 **Q: In the line `current.next = prev`, what exactly are we doing?**  
 A: We're changing where the current node points to. Instead of pointing to the next node in the original list, we're making it point to the previous node, effectively reversing the direction of the link.
+Again, my confution was to understand `current.next` as the actual object of the next node. Instead, it's the pointer from the current node !
 
 ## My Final Correct Solution
 ```python
