@@ -115,3 +115,148 @@ class Solution:
 # Leetcode - 15 3Sum
 
 ## Takeaway
+
+1. remove duplicates
+   1. if the smallest number num[i] is greater than 0, then there would be no 'zero-sum' combination hereafter
+   2. the same `nums[i]` duplicates - NOTE: indexing !
+   3. the `left` `right` duplicates
+2. Can I use `set` to remove duplicates in the result list ?
+   1. Not easy since lists are not hashable in Python. 
+   2. 
+   ```python
+    class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        if len(nums) < 3:
+            return []
+            
+        nums.sort()
+        # Using a set of tuples to store unique triplets
+        res_set = set()
+        
+        for i in range(len(nums) - 2):
+            # Skip if first element is positive (can't sum to zero)
+            if nums[i] > 0:
+                break
+                
+            left = i + 1
+            right = len(nums) - 1
+            
+            while left < right:
+                cur = nums[i] + nums[left] + nums[right]
+                if cur == 0:
+                    # Add as tuple (hashable) to the set
+                    res_set.add((nums[i], nums[left], nums[right]))
+                    left += 1
+                    right -= 1
+                elif cur > 0:
+                    right -= 1
+                else:
+                    left += 1
+
+        # Convert set of tuples back to list of lists
+        return [list(triplet) for triplet in res_set]
+
+   ```
+
+### E.g.: duplicates for the left and right pointers:
+
+Consider the array: `[-2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2]`
+
+Let's say `i` is at index 0 (value `-2`), and we're looking for triplets that sum to 0:
+
+1. `i = 0, left = 1, right = 11`
+   - We have `-2 + -2 + 2 = -2`, which is < 0
+   - Increment left to 2
+
+2. `i = 0, left = 2, right = 11`
+   - We have `-2 + -2 + 2 = -2`, which is < 0
+   - Increment left to 3
+
+3. `i = 0, left = 3, right = 11`
+   - We have `-2 + -1 + 2 = -1`, which is < 0
+   - Increment left to 4
+
+...eventually we get to:
+
+4. `i = 0, left = 9, right = 11`
+   - We have `-2 + 2 + 2 = 2`, which is > 0
+   - Decrement right to 10
+
+5. `i = 0, left = 9, right = 10`
+   - We have `-2 + 2 + 2 = 2`, which is > 0
+   - Decrement right to 9
+
+6. `i = 0, left = 9, right = 9`
+   - This violates `left < right`, so inner loop ends
+
+Now imagine if we had found a triplet that sums to 0:
+
+Let's say with `i = 5, left = 6, right = 9`:
+- We have `0 + 0 + 1 = 1`, which is > 0
+- Decrement right to 8
+
+With `i = 5, left = 6, right = 8`:
+- We have `0 + 0 + 1 = 1`, which is > 0
+- Decrement right to 7
+
+With `i = 5, left = 6, right = 7`:
+- We have `0 + 0 + 0 = 0`, so we found a triplet!
+- We add `[0, 0, 0]` to our result
+
+Without duplicate skipping, we would just increment left and decrement right:
+- `left = 7, right = 6`
+- This violates `left < right`, so inner loop ends
+
+But with proper duplicate skipping:
+1. We check if the next left element is a duplicate (if `nums[left] == nums[left+1]`)
+2. We check if the next right element is a duplicate (if `nums[right] == nums[right-1]`)
+
+Since both `nums[7]` and `nums[6]` are `0` (duplicates), we would skip them and move to the next unique elements, avoiding duplicate triplets in our result.
+
+
+## Mistake analysis
+
+```python
+class Solution:
+    def threeSum(self, nums: List[int]) -> List[List[int]]:
+        if len(nums) == 3:
+            return nums if sum(nums) == 0 else []
+            # ERROR: Should return [[nums[0], nums[1], nums[2]]] instead of the array itself
+            # This is returning a 1D array when the function should return a 2D array of triplets
+        
+        nums.sort()
+        res = []
+        i = 0  # Unnecessary since you're using a for loop
+        
+        if nums[0] > 0:
+            return res
+        
+        for i in range(len(nums) - 2):
+            left = i + 1
+            right = len(nums)-1
+            
+            # ERROR: Wrong duplicate checking logic
+            if nums[i] == nums[i + 1]:
+                continue
+                # This skips the current element if it's equal to the NEXT element
+                # Should instead skip if current element equals PREVIOUS element
+                # Current approach leads to missing valid triplets
+            
+            while left < right:
+                cur = nums[i] + nums[left] + nums[right]
+                if cur == 0:
+                    res.append([nums[i], nums[left], nums[right]])
+                    
+                    # ERROR: Missing duplicate checking for left and right pointers
+                    # Need to skip duplicate values for left and right here
+                    # Without this, you'll get duplicate triplets in the result
+                    
+                    left += 1
+                    right -= 1
+                elif cur > 0:
+                    right -= 1
+                else:
+                    left += 1
+
+        return res
+```
