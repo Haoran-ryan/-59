@@ -260,3 +260,70 @@ class Solution:
 
         return res
 ```
+
+# Leetcode - 18 4Sum
+
+## My crapy code 
+
+```python
+
+class Solution:
+    def fourSum(self, nums: List[int], target: int) -> List[List[int]]:
+        res = []
+        
+        # ISSUE: Missing sorting step
+        # FIX: Add 'nums.sort()' here which is critical for:
+        # 1. Duplicate handling
+        # 2. Efficient two-pointer technique
+        # 3. Pruning the search space effectively
+        
+        for i in range(len(nums)):
+            # ISSUE: No duplicate checking for first number
+            # FIX: Add 'if i > 0 and nums[i] == nums[i-1]: continue'
+            
+            left = i + 1
+            right = len(nums) - 1
+            
+            # ISSUE: This while loop's purpose is unclear
+            # FIX: This should be a second for loop to fix the second number
+            while left < right - 1:
+                # ISSUE: Only calculating sum of 3 numbers, not 4
+                cur = nums[i] + nums[left] + nums[right]
+
+                # ISSUE: Incorrect pruning logic 
+                # Without considering the 4th number properly
+                if cur >= target:
+                    right -= 1
+                    continue
+                    
+                else:
+                    # ISSUE: Nested while loop with same variables creates confusion
+                    # The nested while loop should be replaced with a cleaner approach
+                    while left < right - 1:
+                        # ISSUE: This for loop changes the dynamics of the two pointers
+                        # FIX: Remove this for loop and use a single mid pointer instead
+                        for j in range(left + 1, right):
+                            candidate = nums[j]
+                            
+                            # ISSUE: Logic doesn't handle all cases correctly
+                            # and pointer movements are inconsistent
+                            if cur + candidate > target:
+                                # ISSUE: Decreasing right inside the j-loop breaks the logic
+                                right -= 1
+                                continue
+                            elif cur + candidate < target:
+                                # ISSUE: Increasing left inside the j-loop breaks the logic
+                                left += 1
+                                continue
+                            else:
+                                # ISSUE: Syntax error - missing closing bracket
+                                # ISSUE: No duplicate handling after finding a valid quadruplet
+                                res.append([nums[i],nums[left],nums[j],nums[right])
+                                break
+                                # ISSUE: After finding a quadruplet, the pointers aren't
+                                # properly advanced to look for more solutions
+```
+
+## Takeways
+1. How to remove duplicates?
+2. Clean up the loop logics in the old version !
