@@ -80,3 +80,46 @@ class MyQueue:
         # Need to check both stacks
         return len(self.stack_in) == 0 and len(self.stack_out) == 0
 ```
+
+
+# Leetcode 225
+
+# Stack vs Queue Confusion - Q&A
+
+**Q1: Why do we need to rotate the queue after pushing a new element?**
+A1: We rotate the queue to keep the newest element at the front. This way, when we pop, we get the last element added first (like a stack should). Without rotation, we'd get the oldest element first, which is not stack behavior.
+
+**Q2: Why rotate during push instead of pop?**
+A2: It's more efficient. By doing the work during push, we make pop operations faster (O(1) instead of O(n)). Since pop is usually called more frequently in stacks, this is a good trade-off.
+
+**Q3: Does changing the order of elements mess up our stack?**
+A3: No. The internal order [3,2,1] is just an implementation detail. What matters is that if you push 1,2,3, then when you pop, you get 3,2,1 out. The methods behave like a stack, even if the internal storage looks different.
+
+**Common mistakes in your code:**
+1. Spelling: It's `deque` not `dequeue`
+2. Typo: `qppend` should be `append`
+3. Unnecessary condition: The if-else in push isn't needed since we always append and rotate
+
+**Correct simple implementation:**
+```python
+from collections import deque
+
+class MyStack:
+    def __init__(self):
+        self.q = deque()
+        
+    def push(self, x):
+        self.q.append(x)
+        # Rotate to bring newest element to front
+        for _ in range(len(self.q) - 1):
+            self.q.append(self.q.popleft())
+            
+    def pop(self):
+        return self.q.popleft()
+        
+    def top(self):
+        return self.q[0]
+        
+    def empty(self):
+        return len(self.q) == 0
+```
