@@ -203,3 +203,14 @@ def isValid(self, s: str) -> bool:
 
     return not stack  # Simplified from "False if stack else True"
 ```
+
+# Leetcode 1047 - Remove All Adjacent Duplicates In String
+
+## Takeaway
+
+1. Why do we use stack?
+   - Stack is a LIFO data structure, which allows us to easily remove the last added character if it matches the current character.
+   - This is efficient for removing adjacent duplicates as we can simply pop from the stack when we find a match.
+2. The key: 'adjacent duplicates'
+   - We only need to check the last character in the stack to see if it matches the current character.
+   - If it does, we pop it off the stack. If not, we push the current character onto the stack.
