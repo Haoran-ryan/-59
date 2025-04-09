@@ -214,3 +214,63 @@ def isValid(self, s: str) -> bool:
 2. The key: 'adjacent duplicates'
    - We only need to check the last character in the stack to see if it matches the current character.
    - If it does, we pop it off the stack. If not, we push the current character onto the stack.
+
+```text
+s = abbabaca 
+
+stack = []
+
+'a' : if in stack[-1]? no , push -> stack = [a]
+'b' : if in stack[-1]? no , push -> stack = [a,b]
+'b' : == stack[-1] ? yes, stack.pop() stack = [a]
+'a' : == stack[-1]? yes, stack.pop() stack = []
+'b' : stack[b]
+'a' : stack [b,a]
+'c' : stack [b,a,c]
+'a' : stack [b,a,c,a]
+
+return ''.join(stack)
+```
+
+## Code with comments
+
+```python
+# my code 
+
+class Solution:
+    def removeDuplicates(self, s: str) -> str:
+        if len(s) == 1:  # Good edge case handling
+            return s
+        
+        stack = []  # Using a stack is the correct approach for this problem
+
+        s_list = list(s)  # This conversion is unnecessary and adds extra work/memory
+
+        for ch in s_list:  # Could iterate directly on the string
+            if not stack:  # Correct handling for empty stack
+                stack.append(ch)
+            elif stack[-1] == ch:  # Good check for matching character at top of stack
+                stack.pop()  # Correctly removing matching pairs
+            else:
+                stack.append(ch)  # Adding non-matching character to stack
+        
+        return ''.join(stack)  # Correct way to convert stack back to string
+```
+
+```python
+class Solution:
+    def removeDuplicates(self, s: str) -> str:
+        # No need to convert string to list, we can iterate directly
+        # Edge case for single character isn't needed as the loop would handle it correctly
+        
+        stack = []
+        
+        for ch in s:  # Iterate directly on the string
+            # Combine the conditions to make code more concise
+            if stack and stack[-1] == ch:
+                stack.pop()
+            else:
+                stack.append(ch)
+        
+        return ''.join(stack)
+```
