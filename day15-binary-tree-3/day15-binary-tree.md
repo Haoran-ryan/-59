@@ -149,6 +149,10 @@ You typically don't need `.copy()` when:
 - The recursive function doesn't modify the shared data structure
 - You're accumulating results in a global collection that all recursive calls can safely modify
 
+5. For DFS, BFS, no need to record 'visited nodes'?
+   - visited node set used for graph because of **cycle**
+   - Not necessary for a tree
+
 ### code
 
 ```python
@@ -190,4 +194,36 @@ class Solution:
         check_path(root, [])
 
         return result  # Return the master list of all paths
+```
+
+```python
+# DFS recursion
+def find_paths(node, current_path_nodes):
+    # ---> Action 1: ADD <---
+    # Add the current node when we first visit it in this path
+    current_path_nodes.append(str(node.val))
+
+    # Check if it's a leaf
+    if not node.left and not node.right:
+        # Found a complete path! Record it.
+        all_paths.append("->".join(current_path_nodes))
+
+        # ---> Action 2a: POP (Leaf Case) <---
+        # We are DONE with this leaf node and this path.
+        # TODO: REVIEW - Remove the leaf node's value before returning up the call stack.
+        current_path_nodes.pop()
+        return # End exploration down this branch
+
+    # If not a leaf, explore children
+    if node.left:
+        find_paths(node.left, current_path_nodes) # Recursive call
+    if node.right:
+        find_paths(node.right, current_path_nodes) # Recursive call
+
+    # ---> Action 2b: POP (Non-Leaf Case) <---
+    # We have finished exploring ALL children of this non-leaf node.
+    # We are about to return control to the PARENT node's function call.
+    # Remove the CURRENT node's value from the path list.
+    current_path_nodes.pop()
+    # Implicit return here
 ```
